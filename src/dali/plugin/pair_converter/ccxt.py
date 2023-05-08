@@ -94,6 +94,8 @@ _ALT_MARKET_EXCHANGES_DICT: Dict[str, str] = {
     "SGBUSD": _KRAKEN,
     "SOLOUSDT": _HUOBI,
     "USDTUSD": _KRAKEN,
+    "NFTEUR": _GATE,
+    "CAKEUSD": _BINANCE,
 }
 
 _ALT_MARKET_BY_BASE_DICT: Dict[str, str] = {
@@ -109,6 +111,8 @@ _ALT_MARKET_BY_BASE_DICT: Dict[str, str] = {
     "SGB": "USD",
     "SOLO": "USDT",
     "USDT": "USD",
+    "NFT": "EUR",
+    "CAKE": "USD",
 }
 
 # Priority for quote asset. If asset is not listed it will be filtered out.
