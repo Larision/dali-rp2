@@ -285,19 +285,11 @@ def resolve_transactions(
                 transaction = _resolve_out_in_transaction(transaction1, transaction2, None)
             elif isinstance(transaction1, IntraTransaction) and isinstance(transaction2, IntraTransaction):
                 transaction = _resolve_intra_intra_transaction(transaction1, transaction2, None)
-            # Añadido para tarnsaccion duplicada de binance
+
             else:
-                transaction1 = _apply_transaction_hint(transaction1, global_configuration)
-                transaction2 = _apply_transaction_hint(transaction2, global_configuration)
-                if read_spot_price_from_web:
-                    transaction1 = _update_spot_price_from_web(transaction1, global_configuration)
-                    transaction2 = _update_spot_price_from_web(transaction2, global_configuration)
-                LOGGER.debug("Resolved transactions (by Karkass): %s", str(transaction1))
-                resolved_transactions.append(transaction1)
-                resolved_transactions.append(transaction2)
-                #raise RP2RuntimeError(
-                #   f"Internal error: attempting to resolve two transactions that aren't Intra/Intra, In/Out or Out/In:\n{transaction1}\n{transaction2}"
-                #)
+                raise RP2RuntimeError(
+                   f"Internal error: attempting to resolve two transactions that aren't Intra/Intra, In/Out or Out/In:\n{transaction1}\n{transaction2}"
+                )
 
             if read_spot_price_from_web:
                 transaction = _update_spot_price_from_web(transaction, global_configuration)
