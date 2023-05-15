@@ -104,14 +104,14 @@ _ALT_MARKET_EXCHANGES_DICT: Dict[str, str] = {
     "BSVUSDT": _GATE,
     "BOBAUSD": _GATE,
     "BUSDUSDT": _BINANCE,
+    "CAKEUSDT": _GATE,
     "EDGUSDT": _GATE,
     "ETHWUSD": _KRAKEN,
     "NEXOUSDT": _BINANCE,
+    "NFTUSDT": _GATE,
     "SGBUSD": _KRAKEN,
     "SOLOUSDT": _HUOBI,
     "USDTUSD": _KRAKEN,
-    "NFTEUR": _GATE,
-    "CAKEUSD": _BINANCE,
 }
 
 _ALT_MARKET_BY_BASE_DICT: Dict[str, str] = {
@@ -122,14 +122,14 @@ _ALT_MARKET_BY_BASE_DICT: Dict[str, str] = {
     "BOBA": "USD",
     "BSV": "USDT",
     "BUSD": "USDT",
+    "CAKE": "USDT",
     "EDG": "USDT",
     "ETHW": "USD",
     "NEXO": "USDT",
+    "NFT": "USDT",
     "SGB": "USD",
     "SOLO": "USDT",
     "USDT": "USD",
-    "NFT": "EUR",
-    "CAKE": "USD",
 }
 
 # Priority for quote asset. If asset is not listed it will be filtered out.
