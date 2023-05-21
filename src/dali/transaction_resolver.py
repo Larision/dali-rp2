@@ -285,7 +285,6 @@ def resolve_transactions(
                 transaction = _resolve_out_in_transaction(transaction1, transaction2, None)
             elif isinstance(transaction1, IntraTransaction) and isinstance(transaction2, IntraTransaction):
                 transaction = _resolve_intra_intra_transaction(transaction1, transaction2, None)
-
             else:
                 raise RP2RuntimeError(
                     f"Internal error: attempting to resolve two transactions that aren't Intra/Intra, In/Out or Out/In:\n{transaction1}\n{transaction2}"
