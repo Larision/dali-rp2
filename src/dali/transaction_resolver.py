@@ -288,7 +288,7 @@ def resolve_transactions(
 
             else:
                 raise RP2RuntimeError(
-                   f"Internal error: attempting to resolve two transactions that aren't Intra/Intra, In/Out or Out/In:\n{transaction1}\n{transaction2}"
+                    f"Internal error: attempting to resolve two transactions that aren't Intra/Intra, In/Out or Out/In:\n{transaction1}\n{transaction2}"
                 )
 
             if read_spot_price_from_web:
