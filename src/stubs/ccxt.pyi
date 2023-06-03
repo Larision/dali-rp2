@@ -36,6 +36,7 @@ class Exchange:
 class binance(Exchange):
     def __init__(self, config: Dict[str, Union[str, bool]]) -> None: ...
     options: Dict[str, str]
+    def sapiGetConvertTradeflow(self, params: Dict[str, Union[int, str, None]] = ...) -> Any: ...  # type: ignore
     def sapiGetAssetAssetDividend(self, params: Dict[str, Union[int, str, None]] = ...) -> Any: ...  # type: ignore
     def sapiGetFiatOrders(self, params: Dict[str, Union[int, str, None]] = ...) -> Any: ...  # type: ignore
     def sapiGetFiatPayments(self, params: Dict[str, Union[int, str, None]] = ...) -> Any: ...  # type: ignore
