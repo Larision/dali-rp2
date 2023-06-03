@@ -811,7 +811,7 @@ class InputPlugin(AbstractCcxtInputPlugin):
         # We will pull in 30 day periods
         current_end = current_start + _THIRTY_DAYS_IN_MS
         while current_start < now_time:
-            convert_trades = self._client.sapiGetConvertTradeflow(params=({_START_TIME: current_start, _END_TIME: current_end}))
+            convert_trades = self._client.sapiGetConvertTradeFlow(params=({_START_TIME: current_start, _END_TIME: current_end}))
             #   {
             #   "list": [
             #        {
