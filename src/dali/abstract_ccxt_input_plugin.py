@@ -194,6 +194,7 @@ class AbstractCcxtInputPlugin(AbstractInputPlugin):
         if self._client.has[_FETCH_WITHDRAWALS]:
             self._process_withdrawals(intra_transactions)
         self._process_implicit_api(in_transactions, out_transactions, intra_transactions)
+        self._process_convert_trade_history(in_transactions, out_transactions)
 
         result.extend(in_transactions)
         result.extend(out_transactions)
@@ -294,6 +295,13 @@ class AbstractCcxtInputPlugin(AbstractInputPlugin):
         in_transactions: List[InTransaction],
         out_transactions: List[OutTransaction],
         intra_transactions: List[IntraTransaction],
+    ) -> None:
+        raise NotImplementedError("Abstract method")
+    
+    def _process_convert_trade_history(
+        self,
+        in_transactions: List[InTransaction],
+        out_transactions: List[OutTransaction],
     ) -> None:
         raise NotImplementedError("Abstract method")
 

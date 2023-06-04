@@ -804,12 +804,22 @@ class InputPlugin(AbstractCcxtInputPlugin):
 
             current_start = current_end + 1
             current_end = current_start + _THIRTY_DAYS_IN_MS
-        ### Convert trade history
-        # We need milliseconds for Binance
-        current_start = self._start_time_ms
 
+    ### Convert trade history
+
+    def _process_convert_trade_history(  # pylint: disable=unused-argument
+        self,
+        in_transactions: List[InTransaction],
+        out_transactions: List[OutTransaction],
+    ) -> None:
+        # We need milliseconds for Binance
+        now_time = int(datetime.now().timestamp()) * _MS_IN_SECOND
+        current_start = self._start_time_ms
         # We will pull in 30 day periods
         current_end = current_start + _THIRTY_DAYS_IN_MS
+
+        processing_result_list: List[Optional[ProcessOperationResult]] = []
+
         while current_start < now_time:
             convert_trades = self._client.sapiGetConvertTradeFlow(params=({_START_TIME: current_start, _END_TIME: current_end}))
             #   {
