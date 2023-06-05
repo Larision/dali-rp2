@@ -637,6 +637,61 @@ class InputPlugin(AbstractCcxtInputPlugin):
                 else:
                     break
 
+    ### Convert trade history
+
+    def _process_convert_trades(  #pylint: disable=unused-argument
+        self,
+        in_transactions: List[InTransaction],
+        out_transactions: List[OutTransaction],
+        intra_transactions: List[IntraTransaction],
+    ) -> None:
+        # We need milliseconds for Binance
+        now_time = int(datetime.now().timestamp()) * _MS_IN_SECOND
+
+        current_start = self._start_time_ms
+
+        processing_result_list: List[Optional[ProcessOperationResult]] = []
+
+        # We will pull in 30 day periods
+        current_end = current_start + -_THIRTY_DAYS_IN_MS
+        while current_start < now_time:
+            convert_history = self._client.sapiGetConvertTradeflow(params=({_START_TIME: current_start, _END_TIME: current_end, _LIMIT: 1000}))
+            #   {
+            #   "list": [
+            #        {
+            #            "quoteId": "f3b91c525b2644c7bc1e1cd31b6e1aa6",
+            #            "orderId": 940708407462087195,  
+            #            "orderStatus": "SUCCESS",  // order status
+            #            "fromAsset": "USDT",       // from asset
+            #            "fromAmount": "20",        // from amount
+            #            "toAsset": "BNB",          // to asset
+            #            "toAmount": "0.06154036",  // to amount
+            #            "ratio": "0.00307702",     // price ratio
+            #            "inverseRatio": "324.99",  // inverse price 
+            #            "createTime": 1624248872184
+            #        }
+            #   ],
+            #    "startTime": 1623824139000,
+            #    "endTime": 1626416139000,
+            #    "limit": 100,
+            #    "moreData": false
+            #   }
+            if _LIST in convert_history:
+                with ThreadPool(self._thread_count) as pool:
+                    processing_result_list = pool.map(self._process_convert_trade, convert_history[_LIST])
+
+                for processing_result in processing_result_list:
+                    if processing_result is None:
+                        continue
+                    if processing_result.in_transactions:
+                        in_transactions.extend(processing_result.in_transactions)
+                    if processing_result.out_transactions:
+                        out_transactions.extend(processing_result.out_transactions)
+
+            current_start = current_end + 1
+            current_end = current_start + _THIRTY_DAYS_IN_MS
+
+
     def _process_implicit_api(  # pylint: disable=unused-argument
         self,
         in_transactions: List[InTransaction],
@@ -1159,5 +1214,54 @@ class InputPlugin(AbstractCcxtInputPlugin):
                 )
             )
 
-        return ProcessOperationResult(in_transactions=in_transaction_list, out_transactions=out_transaction_list, intra_transactions=[])
     
+    def _process_convert_trade(self, conversion: Any, notes: Optional[str] = None) -> ProcessOperationResult:
+        self._logger.debug("Convert Trade: %s", json.dumps(conversion))
+        in_transaction_list: List[InTransaction] = []
+        out_transaction_list: List[OutTransaction] = []
+
+        if conversion[_ORDER_STATUS] == "SUCCESS":
+            if not self.is_native_fiat(conversion[_TO_AMOUNT]):
+                toAmount: RP2Decimal = RP2Decimal(conversion[_TO_AMOUNT])
+            if not self.is_native_fiat(conversion[_FROM_AMOUNT]):
+                fromAmount: RP2Decimal = RP2Decimal(conversion[_FROM_AMOUNT])
+            notes = f"{notes + '; ' if notes else ''}Conversion of {conversion[_FROM_ASSET]} to {conversion[_TO_ASSET]}"
+            in_transaction_list.append(
+                InTransaction(
+                    plugin=self.__PLUGIN_NAME,
+                    unique_id=conversion[_ORDER_ID],
+                    raw_data=json.dumps(conversion),
+                    timestamp=self._rp2_timestamp_from_ms_epoch(conversion[_CREATE_TIME]),
+                    asset=conversion[_TO_ASSET],
+                    exchange=self.__EXCHANGE_NAME,
+                    holder=self.account_holder,
+                    transaction_type=Keyword.BUY.value,
+                    spot_price=conversion[_INVERSE_RATIO],
+                    crypto_in=str(toAmount),
+                    crypto_fee=None,
+                    fiat_in_no_fee=None,
+                    fiat_in_with_fee=None,
+                    fiat_fee=None,
+                    notes=notes,
+                )
+            )
+            out_transaction_list.append(
+                OutTransaction(
+                    plugin=self.__PLUGIN_NAME,
+                    unique_id=conversion[_ORDER_ID],
+                    raw_data=json.dumps(conversion),
+                    timestamp=self._rp2_timestamp_from_ms_epoch(conversion[_CREATE_TIME]),
+                    asset=conversion[_FROM_ASSET],
+                    exchange=self.__EXCHANGE_NAME,
+                    holder=self.account_holder,
+                    transaction_type=Keyword.SELL.value,
+                    spot_price=conversion[_RATIO],
+                    crypto_out_no_fee=str(fromAmount),
+                    crypto_fee="0",
+                    fiat_out_no_fee=None,
+                    fiat_fee=None,
+                    notes=notes,
+                )
+            )
+        return ProcessOperationResult(in_transactions=in_transaction_list, out_transactions=out_transaction_list, intra_transactions=[])
+

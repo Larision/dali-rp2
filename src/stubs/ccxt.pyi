@@ -44,6 +44,7 @@ class binance(Exchange):
     def sapiGetMiningPaymentList(self, params: Dict[str, Union[int, str, None]] = ...) -> Any: ...  # type: ignore
     def sapiGetMiningPubAlgoList(self, params: Dict[str, Union[int, str, None]] = ...) -> Any: ...  # type: ignore
     def sapi_get_staking_stakingrecord(self, params: Dict[str, Union[int, str, None]] = ...) -> Any: ...  # type: ignore
+    def sapiGetConvertTradeflow(self, params: Dict[str, Union[int, str, None]] = ...) -> Any: ...  # type: ignore
 
 class bitbank(Exchange):
     def __init__(self, config: Dict[str, Union[str, bool]]) -> None: ...
